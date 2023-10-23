@@ -45,5 +45,6 @@ def process():
 
 if __name__ == '__main__':
     port = config('PORT')
-    app.run(debug=True, port=port)
+    ip = config('IP')
+    app.run(ip, port=port)
 
