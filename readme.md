@@ -15,12 +15,12 @@ executes a specified processing application, and displays the results to the use
 - **Batch File Execution**: Executes a Windows batch file for additional processing tasks.
 
 ## Prerequisites
-
 - Python 3.x
 - Flask
 - Pandas
 - openpyxl
 - python_decouple
+- pyodbc
 
 ## Installation
 

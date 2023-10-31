@@ -3,3 +3,4 @@ flask
 pandas
 openpyxl
 python_decouple
+pyodbc

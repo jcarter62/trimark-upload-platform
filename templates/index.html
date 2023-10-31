@@ -39,14 +39,14 @@
         </table>
         </form>
 
-    {% if rows %}
+    {% if context.rows %}
         <table class="table">
             <tbody>
             <tr>
-                <td>Rows: {{ rows }}</td>
+                <td>Rows: {{ context.rows }}</td>
             </tr>
             <tr>
-                <td>Columns: {{ cols }}</td>
+                <td>Columns: {{ context.cols }}</td>
             </tr>
             <tr>
                 <button id="process">Process</button>
@@ -86,6 +86,31 @@
         });
     </script>
     {% endif %}
+        <h2>Recently Processed Uploads</h2>
+        <table class="table">
+            <thead>
+            <tr>
+                <th>File</th>
+                <th>Modification Date</th>
+                <th>Last Reading Date</th>
+                <th>Data Rows</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for f in context.recent_files %}
+                <tr>
+                    <td>{{ f.name }}</td>
+                    <td id="A{{ f.name }}">---</td>  <!-- Modified Date -->
+                    <td id="B{{ f.name }}">---</td>  <!-- Last Reading Date -->
+                    <td id="C{{ f.name }}">---</td>  <!-- Data Rows -->
+                </tr>
+                <script>
+
+                </script>
+            {% endfor %}
+            </tbody>
+        </table>
+
     </div>
     <div class="container text-center">
         <div id="processing-indicator" style="display:none;" >
@@ -93,8 +118,27 @@
         </div>
     </div>
 
+    <script>
+        function loadFileDetails(filename) {
+            fetch('/fileinfo/' + filename , {
+                method: 'GET'
+            })
+            .then(response => response.json())
+            .then(data => {
+                let A = document.getElementById('A' + filename);
+                let B = document.getElementById('B' + filename);
+                let C = document.getElementById('C' + filename);
+                A.innerText = data.modified;
+                B.innerText = data.last_meterreadingdate;
+                C.innerText = data.rows;
+            });
+        }
+
+       {% for f in context.recent_files %}
+          loadFileDetails('{{ f.name }}');
+       {% endfor %}
+    </script>
     <!-- Option 1: Bootstrap Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
-
 </body>
 </html>
