@@ -3,7 +3,7 @@
 /* Set the viewport to ensure proper scaling on mobile devices */
 html {
     box-sizing: border-box;
-    font-size: .5rem;
+    font-size: 1.8vw; /* Responsive font size */
 }
 
 *, *:before, *:after {
@@ -14,6 +14,7 @@ body {
     margin: 0;
     padding: 0;
     font-family: Arial, sans-serif;
+    font-size: 1.8vw; /* Base font size */
     line-height: 1.6;
 }
 
@@ -69,7 +70,7 @@ input[type="text"], input[type="submit"], button {
     width: 100%;
     padding: 10px;
     margin: 5px 0;
-    box-sizing: border-box;
+    // box-sizing: border-box;
 }
 
 /* Media queries for different screen sizes */
@@ -81,7 +82,7 @@ input[type="text"], input[type="submit"], button {
 
 @media (max-width: 480px) {
     body {
-        font-size: 14px;
+        font-size: 2vw; /* Adjust font size for smaller screens */
     }
 
     .table th, .table td {
