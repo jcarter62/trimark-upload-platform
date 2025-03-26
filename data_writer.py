@@ -1,5 +1,7 @@
 from decouple import config
 import pyodbc
+import sys
+
 """
 data_writer.py - Writes data to a SQL Server database.
 
@@ -108,8 +110,14 @@ class DataWriter:
             if inserted > 0:
                 print(f"Inserted {inserted} records into the database.")
                 self.conn.commit()
+            cursor.close()
         except Exception as e:
             print(f"An error occurred at record {irec}: {e}")
+        finally:
+            # flush print buffer
+            sys.stdout.flush()
+
+
 
     def close(self):
         if self.conn:
