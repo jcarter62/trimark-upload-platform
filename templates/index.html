@@ -8,121 +8,167 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="/style.css" type="text/css">
 
 </head>
 <body>
-    <div class="container">
+<div class="container">
     <h1>
-        <a href="/" style="color:black;text-decoration: none;" >Trimark Upload Platform</a>
+        <a href="/" style="color:black;text-decoration: none;">Trimark Upload Platform</a>
     </h1>
     <hr>
 
-        <p>
+    <p>
         This is a simple upload platform for Trimark daily data files.
         It allows you to upload an Excel file and process it.
         After processing, the data contained in the file will be available in the WMIS table "trimark".
-        </p>
+    </p>
 
-        <form action="/" method="post" enctype="multipart/form-data">
+    <form id="uploadForm" action="/" method="post" enctype="multipart/form-data">
         <table class="table">
             <tbody>
             <tr>
                 <td>
-                    <input type="file" name="file" title="Input Excel File" placeholder="FileName.xlsx">
+                    <input type="file" name="file" title="Input Excel File" placeholder="FileName.xlsx" id="choos_file_button">
                 </td>
                 <td>
-                    <input type="submit" value="Upload">
+                    <input type="submit" value="Upload" id="upload_button">
                 </td>
+            </tr>
+            <tr>
+                <td id="uploadStatus"></td>
             </tr>
             </tbody>
         </table>
-        </form>
+    </form>
 
     {% if context.rows %}
-        <table class="table">
-            <tbody>
-            <tr>
-                <td>Rows: {{ context.rows }}</td>
-            </tr>
-            <tr>
-                <td>Columns: {{ context.cols }}</td>
-            </tr>
-            <tr>
-                <button id="process">Process</button>
-            </tr>
-            <tr>
-                <div id="result"></div>
-            </tr>
-            </tbody>
+    <table class="table">
+        <tbody>
+        <tr>
+            <td>Rows: {{ context.rows }}</td>
+        </tr>
+        <tr>
+            <td>Columns: {{ context.cols }}</td>
+        </tr>
+        <tr>
+            <button id="process">Process</button>
+        </tr>
+        <tr>
+            <div id="result"></div>
+        </tr>
+        </tbody>
     </table>
     <script>
 
         let intervalId;
         let dots = '';
 
-        document.getElementById('process').addEventListener('click', function() {
+        document.getElementById('process').addEventListener('click', function () {
             document.getElementById('processing-indicator').style.display = 'block';
 
-            intervalId = setInterval(function() {
+            intervalId = setInterval(function () {
                 dots = dots.length < 5 ? dots + '.' : ' ';
                 let processing_indicator = document.getElementById('processing-indicator');
                 processing_indicator.innerText = 'Processing, please wait' + dots;
                 processing_indicator.classList.add('danger', 'alert-danger');
-            }, 1000 );
+            }, 1000);
+
+            // disable the button
+            document.getElementById('process').disabled = true;
+            // disable the upload button
+            document.getElementById('upload_button').disabled = true;
+            // didsable choose file button
+            document.getElementById('choos_file_button').disabled = true;
 
             fetch('/process', {
                 method: 'POST'
             })
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('processing-indicator').style.display = 'none';
-                clearInterval(intervalId);
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('processing-indicator').style.display = 'none';
+                    clearInterval(intervalId);
 
-                let result_div = document.getElementById('result');
-                result_div.innerText = data.result;
-                result_div.classList.add('alert', 'alert-success');
+                    let result_div = document.getElementById('result');
+                    result_div.innerText = data.result;
+                    result_div.classList.add('alert', 'alert-success');
+                    // redirect to main page.
+                    setTimeout(function () {
+                        window.location.href = '/';
+                    }, 2000);
+                });
+        });
+    </script>
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', function (event) {
+            event.preventDefault(); // Prevent default form submission
+
+            let formData = new FormData(this);
+
+            fetch('/', {
+                method: 'POST',
+                body: formData
+            }).then(response => response.text()) // Process the upload response
+                .then(data => {
+                    document.getElementById('uploadStatus').innerHTML = 'Upload complete!';
+
+                    // Automatically trigger the process operation
+                    fetch('/process', {
+                        method: 'POST',
+                    }).then(response => response.json())
+                        .then(result => {
+                            location.reload();
+                        })
+                        .catch(error => {
+                            console.error('Error processing the file:', error);
+                        });
+                }).catch(error => {
+                console.error('Error uploading the file:', error);
             });
         });
     </script>
+
+
     {% endif %}
-        <h2>Recently Processed Uploads</h2>
-        <table class="table">
-            <thead>
-            <tr>
-                <th>File</th>
-                <th>Modification Date</th>
-                <th>Last Reading Date</th>
-                <th>Data Rows</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for f in context.recent_files %}
-                <tr>
-                    <td>{{ f.name }}</td>
-                    <td id="A{{ f.name }}">---</td>  <!-- Modified Date -->
-                    <td id="B{{ f.name }}">---</td>  <!-- Last Reading Date -->
-                    <td id="C{{ f.name }}">---</td>  <!-- Data Rows -->
-                </tr>
-                <script>
+    <h2>Recently Processed Uploads</h2>
+    <table class="table">
+        <thead>
+        <tr>
+            <th>File</th>
+            <th>Modification Date</th>
+            <th>Last Reading Date</th>
+            <th>Data Rows</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for f in context.recent_files %}
+        <tr>
+            <td>{{ f.name }}</td>
+            <td id="A{{ f.name }}">---</td>  <!-- Modified Date -->
+            <td id="B{{ f.name }}">---</td>  <!-- Last Reading Date -->
+            <td id="C{{ f.name }}">---</td>  <!-- Data Rows -->
+        </tr>
+        <script>
+        </script>
+        {% endfor %}
+        </tbody>
+    </table>
 
-                </script>
-            {% endfor %}
-            </tbody>
-        </table>
-
+</div>
+<div class="container text-center">
+    <div id="processing-indicator" style="display:none;">
+        Processing, please wait
     </div>
-    <div class="container text-center">
-        <div id="processing-indicator" style="display:none;" >
-            Processing, please wait
-        </div>
-    </div>
+</div>
 
-    <script>
-        function loadFileDetails(filename) {
-            fetch('/fileinfo/' + filename , {
-                method: 'GET'
-            })
+<script>
+    function loadFileDetails(filename) {
+        fetch('/fileinfo/' + filename, {
+            method: 'GET'
+        })
             .then(response => response.json())
             .then(data => {
                 let A = document.getElementById('A' + filename);
@@ -132,13 +178,16 @@
                 B.innerText = data.last_meterreadingdate;
                 C.innerText = data.rows;
             });
-        }
+    }
 
-       {% for f in context.recent_files %}
-          loadFileDetails('{{ f.name }}');
-       {% endfor %}
-    </script>
-    <!-- Option 1: Bootstrap Bundle with Popper -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+</script>
+{% for f in context.recent_files %}
+<script>loadFileDetails('{{ f.name }}');</script>
+{% endfor %}
+
+<!-- Option 1: Bootstrap Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+        crossorigin="anonymous"></script>
 </body>
 </html>

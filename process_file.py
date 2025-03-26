@@ -55,8 +55,12 @@ class Process_File:
         rd = ExcelReader(self.dataobj["file"])
         self.dataobj["data"] = rd.records
         #
-        dw = DataWriter(self.dataobj)
-        dw.execute()
-        self.move_input_file(self.dataobj["file"], self.dataobj["destination"])
+        try:
+            dw = DataWriter(self.dataobj)
+            dw.execute()
+            self.move_input_file(self.dataobj["file"], self.dataobj["destination"])
+        except Exception as e:
+            print(f"An error occurred: {e}")
+            return
         return
 

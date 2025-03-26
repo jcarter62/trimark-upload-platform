@@ -1,0 +1,90 @@
+/* create styles that will allow standard html to display nicely on mobile devices. */
+
+/* Set the viewport to ensure proper scaling on mobile devices */
+html {
+    box-sizing: border-box;
+    font-size: .5rem;
+}
+
+*, *:before, *:after {
+    box-sizing: inherit;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+}
+
+/* Ensure the page content scales correctly on mobile devices */
+meta[name="viewport"] {
+    content: "width=device-width, initial-scale=1.0";
+}
+
+/* Container for centering content */
+.container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 15px;
+}
+
+/* Responsive grid layout */
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0 -15px;
+}
+
+.col {
+    flex: 1;
+    padding: 15px;
+}
+
+/* Ensure images are responsive */
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Responsive table */
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table th, .table td {
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-align: left;
+}
+
+.table th {
+    background-color: #f4f4f4;
+}
+
+/* Responsive form elements */
+input[type="text"], input[type="submit"], button {
+    width: 100%;
+    padding: 10px;
+    margin: 5px 0;
+    box-sizing: border-box;
+}
+
+/* Media queries for different screen sizes */
+@media (max-width: 768px) {
+    .col {
+        flex: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        font-size: 14px;
+    }
+
+    .table th, .table td {
+        padding: 8px;
+    }
+}

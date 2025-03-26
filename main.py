@@ -1,5 +1,5 @@
 from datetime import datetime
-from flask import Flask, request, render_template, jsonify
+from flask import Flask, request, render_template, jsonify, send_from_directory
 import pandas as pd
 import os
 from decouple import config
@@ -70,17 +70,6 @@ def recent_processed_files():
     # get 10 most recent files
     recent_files = files_w_details[:10]
 
-    # for f in recent_files:
-    #     # open each file, and determine the last meterreadingdate and the number of rows
-    #     df = pd.read_excel(os.path.join(dest_folder, f["name"]))
-    #     # get the last meterreadingdate
-    #     last_meterreadingdate = df["Meter Reading Date"].max()
-    #     # get the number of rows
-    #     rows, cols = df.shape
-    #     # add last_meterreadingdate and rows to the file details
-    #     f["last_meterreadingdate"] = last_meterreadingdate
-    #     f["rows"] = rows
-    #     #
     return recent_files
 
 
@@ -104,6 +93,12 @@ def file_info(filename):
     modified = datetime.fromtimestamp(mtime).strftime('%Y-%m-%d %H:%M:%S')
 
     return jsonify({"modified": modified, "rows": rows, "last_meterreadingdate": last_meterreadingdate})
+
+
+@app.route('/<filename>.css', methods=['GET'])
+def css_path(filename):
+    # return the css file located in root folder
+    return send_from_directory('', f"{filename}.css")
 
 
 if __name__ == '__main__':
